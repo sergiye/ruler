@@ -53,12 +53,12 @@
             var rulerInfo = new RulerInfo
             {
                 Width = 400,
-                Height = 75,
+                Height = 80,
                 Opacity = 0.8,
                 ShowToolTip = false,
                 IsLocked = false,
                 IsVertical = false,
-                TopMost = false
+                TopMost = true
             };
             return rulerInfo;
         }

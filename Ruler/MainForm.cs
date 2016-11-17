@@ -21,6 +21,8 @@ namespace Ruler
         private Point _offset;
         private Rectangle _mouseDownRect;
         private readonly int _resizeBorderWidth = 5;
+        private bool _crossLineVisible;
+        private Font _crossLineFont;
         private Point _mouseDownPoint;
         private ResizeRegion _resizeRegion = ResizeRegion.None;
         private readonly ContextMenu _menu = new ContextMenu();
@@ -79,7 +81,8 @@ namespace Ruler
             FormBorderStyle = FormBorderStyle.None;
 
             ContextMenu = _menu;
-            Font = new Font("Tahoma", 10);
+            Font = new Font("Verdana", 8);
+            _crossLineFont = new Font("Verdana", 7, FontStyle.Bold);
 
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
         }
@@ -93,7 +96,8 @@ namespace Ruler
 
         private void SetUpMenu(RulerInfo rulerInfo)
         {
-            AddMenuItem("Stay On Top", Shortcut.CtrlT);
+            var _topMost = AddMenuItem("Stay On Top", Shortcut.CtrlT);
+            _topMost.Checked = rulerInfo.TopMost;
             _verticalMenuItem = AddMenuItem("Vertical", Shortcut.CtrlV);
             _toolTipMenuItem = AddMenuItem("Tool Tip");
             var opacityMenuItem = AddMenuItem("Opacity");
@@ -118,12 +122,10 @@ namespace Ruler
             var form = new SetSizeForm(Width, Height);
             if (TopMost)
                 form.TopMost = true;
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                var size = form.GetNewSize();
-                Width = size.Width;
-                Height = size.Height;
-            }
+            if (form.ShowDialog() != DialogResult.OK) return;
+            var size = form.GetNewSize();
+            Width = size.Width;
+            Height = size.Height;
         }
 
         private void LockHandler(object sender, EventArgs e)
@@ -198,11 +200,24 @@ namespace Ruler
             {
                 Cursor = Cursors.Default;
                 if (e.Button == MouseButtons.Left)
-                {
                     Location = new Point(MousePosition.X - _offset.X, MousePosition.Y - _offset.Y);
-                }
+                else
+                    Invalidate();
             }
             base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            _crossLineVisible = true;
+            base.OnMouseEnter(e);
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            _crossLineVisible = false;
+            Invalidate();
+            base.OnMouseLeave(e);
         }
 
         protected override void OnResize(EventArgs e)
@@ -293,23 +308,23 @@ namespace Ruler
             switch (_resizeRegion)
             {
                 case ResizeRegion.E:
-                    {
-                        var diff = MousePosition.X - _mouseDownPoint.X;
-                        Width = _mouseDownRect.Width + diff;
-                        break;
-                    }
+                {
+                    var diff = MousePosition.X - _mouseDownPoint.X;
+                    Width = _mouseDownRect.Width + diff;
+                    break;
+                }
                 case ResizeRegion.S:
-                    {
-                        var diff = MousePosition.Y - _mouseDownPoint.Y;
-                        Height = _mouseDownRect.Height + diff;
-                        break;
-                    }
+                {
+                    var diff = MousePosition.Y - _mouseDownPoint.Y;
+                    Height = _mouseDownRect.Height + diff;
+                    break;
+                }
                 case ResizeRegion.SE:
-                    {
-                        Width = _mouseDownRect.Width + MousePosition.X - _mouseDownPoint.X;
-                        Height = _mouseDownRect.Height + MousePosition.Y - _mouseDownPoint.Y;
-                        break;
-                    }
+                {
+                    Width = _mouseDownRect.Width + MousePosition.X - _mouseDownPoint.X;
+                    Height = _mouseDownRect.Height + MousePosition.Y - _mouseDownPoint.Y;
+                    break;
+                }
             }
         }
 
@@ -374,18 +389,18 @@ namespace Ruler
             // Border
             g.DrawRectangle(Pens.Black, 0, 0, formWidth - 1, formHeight - 1);
             // Width
-            g.DrawString(formWidth + " pixels", Font, Brushes.Black, 10, formHeight / 2 - Font.Height / 2);
+            g.DrawString(string.Format("{0}/{1} px", formWidth, formHeight), Font, Brushes.Black, 10, formHeight/2 - Font.Height/2);
             // Ticks
             for (var i = 0; i < formWidth; i++)
             {
-                if (i % 2 != 0) continue;
+                if (i%2 != 0) continue;
                 int tickHeight;
-                if (i % 100 == 0)
+                if (i%100 == 0)
                 {
                     tickHeight = 15;
                     DrawTickLabel(g, i.ToString(), i, formHeight, tickHeight);
                 }
-                else if (i % 10 == 0)
+                else if (i%10 == 0)
                 {
                     tickHeight = 10;
                 }
@@ -394,6 +409,14 @@ namespace Ruler
                     tickHeight = 5;
                 }
                 DrawTick(g, i, formHeight, tickHeight);
+            }
+            //Draw Cursor Position
+            var pos = PointToClient(MousePosition);
+            if (_crossLineVisible)
+            {
+                g.DrawLine(Pens.Red, new Point(pos.X, 0), new Point(pos.X, formHeight));
+                g.DrawLine(Pens.Red, new Point(0, pos.Y), new Point(formWidth, pos.Y));
+                g.DrawString(string.Format("{0}/{1} px", pos.X, pos.Y), _crossLineFont, Brushes.Red, pos.X, pos.Y - 12);
             }
         }
 

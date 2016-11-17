@@ -28,22 +28,15 @@
 
         public static RulerInfo ConvertToRulerInfo(string[] args)
         {
-            var width = args[0];
-            var height = args[1];
-            var isVertical = args[2];
-            var opacity = args[3];
-            var showToolTip = args[4];
-            var isLocked = args[5];
-            var topMost = args[6];
             var rulerInfo = new RulerInfo
             {
-                Width = int.Parse(width),
-                Height = int.Parse(height),
-                IsVertical = bool.Parse(isVertical),
-                Opacity = double.Parse(opacity),
-                ShowToolTip = bool.Parse(showToolTip),
-                IsLocked = bool.Parse(isLocked),
-                TopMost = bool.Parse(topMost)
+                Width = int.Parse(args[0]),
+                Height = int.Parse(args[1]),
+                IsVertical = bool.Parse(args[2]),
+                Opacity = double.Parse(args[3]),
+                ShowToolTip = bool.Parse(args[4]),
+                IsLocked = bool.Parse(args[5]),
+                TopMost = bool.Parse(args[6])
             };
             return rulerInfo;
         }
@@ -66,12 +59,11 @@
 
     public static class IRulerInfoExtentension
     {
-        public static void CopyInto<T>(this IRulerInfo ruler, T targetInstance)
-            where T : IRulerInfo
+        public static void CopyInto(this IRulerInfo ruler, IRulerInfo targetInstance)
         {
-            targetInstance.Width = ruler.Width;
-            targetInstance.Height = ruler.Height;
             targetInstance.IsVertical = ruler.IsVertical;
+            targetInstance.Height = ruler.Height;
+            targetInstance.Width = ruler.Width;
             targetInstance.Opacity = ruler.Opacity;
             targetInstance.ShowToolTip = ruler.ShowToolTip;
             targetInstance.IsLocked = ruler.IsLocked;

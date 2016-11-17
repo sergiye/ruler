@@ -70,21 +70,18 @@ namespace Ruler
 
             var resources = new ResourceManager(typeof(MainForm));
             Icon = (Icon)resources.GetObject("$this.Icon");
-
-            SetUpMenu(rulerInfo);
-
+            FormBorderStyle = FormBorderStyle.None;
             Text = "Ruler";
             BackColor = Color.DarkOrange;
 
-            rulerInfo.CopyInto(this);
-
-            FormBorderStyle = FormBorderStyle.None;
-
+            SetUpMenu(rulerInfo);
             ContextMenu = _menu;
             Font = new Font("Verdana", 8);
             _crossLineFont = new Font("Verdana", 7, FontStyle.Bold);
 
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
+
+            rulerInfo.CopyInto(this);
         }
 
         private RulerInfo GetRulerInfo()
@@ -381,6 +378,7 @@ namespace Ruler
                 width = Height;
             }
             DrawRuler(graphics, width, height);
+            DrawCrossLine(graphics, width, height);
             base.OnPaint(e);
         }
 
@@ -410,14 +408,21 @@ namespace Ruler
                 }
                 DrawTick(g, i, formHeight, tickHeight);
             }
-            //Draw Cursor Position
+        }
+
+        private void DrawCrossLine(Graphics g, int formWidth, int formHeight)
+        {
             var pos = PointToClient(MousePosition);
-            if (_crossLineVisible)
+            if (!_crossLineVisible) return;
+            if (IsVertical)
             {
-                g.DrawLine(Pens.Red, new Point(pos.X, 0), new Point(pos.X, formHeight));
-                g.DrawLine(Pens.Red, new Point(0, pos.Y), new Point(formWidth, pos.Y));
-                g.DrawString(string.Format("{0}/{1} px", pos.X, pos.Y), _crossLineFont, Brushes.Red, pos.X, pos.Y - 12);
+                var tmp = pos.X;
+                pos.X = pos.Y;
+                pos.Y = formHeight - tmp;
             }
+            g.DrawLine(Pens.Red, new Point(pos.X, 0), new Point(pos.X, formHeight));
+            g.DrawLine(Pens.Red, new Point(0, pos.Y), new Point(formWidth, pos.Y));
+            g.DrawString(string.Format("{0}/{1} px", pos.X, pos.Y), _crossLineFont, Brushes.Red, pos.X, pos.Y - (IsVertical ? 0 : 12));
         }
 
         private static void DrawTick(Graphics g, int xPos, int formHeight, int tickHeight)
@@ -497,6 +502,19 @@ namespace Ruler
             var width = Width;
             Width = Height;
             Height = width;
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // MainForm
+            // 
+            this.ClientSize = new System.Drawing.Size(300, 300);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Name = "MainForm";
+            this.ResumeLayout(false);
+
         }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Resources;
 using System.Windows.Forms;
 
 namespace Ruler
@@ -68,8 +67,9 @@ namespace Ruler
             SetStyle(ControlStyles.ResizeRedraw, true);
             UpdateStyles();
 
-            var resources = new ResourceManager(typeof(MainForm));
-            Icon = (Icon)resources.GetObject("$this.Icon");
+            Icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule.FileName);
+//            var resources = new ResourceManager(typeof(MainForm));
+//            Icon = (Icon)resources.GetObject("$this.Icon");
             FormBorderStyle = FormBorderStyle.None;
             Text = "Ruler";
             BackColor = Color.DarkOrange;

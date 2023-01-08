@@ -45,9 +45,9 @@
         {
             var rulerInfo = new RulerInfo
             {
-                Width = 400,
-                Height = 80,
-                Opacity = 0.8,
+                Width = 600,
+                Height = 150,
+                Opacity = 0.9,
                 ShowToolTip = false,
                 IsLocked = false,
                 IsVertical = false,

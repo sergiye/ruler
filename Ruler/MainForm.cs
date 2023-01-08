@@ -24,6 +24,7 @@ namespace Ruler
         private Point _mouseDownPoint;
         private ResizeRegion _resizeRegion = ResizeRegion.None;
         private readonly ContextMenu _menu = new ContextMenu();
+        private MenuItem _opacityMenuItem;
         private MenuItem _verticalMenuItem;
         private MenuItem _toolTipMenuItem;
         private MenuItem _lockedMenuItem;
@@ -95,7 +96,7 @@ namespace Ruler
             _topMost.Checked = rulerInfo.TopMost;
             _verticalMenuItem = AddMenuItem("Vertical", Shortcut.CtrlV);
             _toolTipMenuItem = AddMenuItem("Tool Tip");
-            var opacityMenuItem = AddMenuItem("Opacity");
+            _opacityMenuItem = AddMenuItem("Opacity");
             _lockedMenuItem = AddMenuItem("Lock resizing", Shortcut.None, LockHandler);
             AddMenuItem("Set size...", Shortcut.CtrlS, SetWidthHeightHandler);
             AddMenuItem("Duplicate", Shortcut.CtrlD, DuplicateHandler);
@@ -104,11 +105,11 @@ namespace Ruler
             AddMenuItem("-");
             AddMenuItem("Exit");
 
-            for (var i = 10; i <= 100; i += 10)
+            for (var i = 10; i <= 100; i += 5)
             {
                 var subMenu = new MenuItem(i + "%") { Checked = i == (int)Math.Round(rulerInfo.Opacity * 100) };
                 subMenu.Click += OpacityMenuHandler;
-                opacityMenuItem.MenuItems.Add(subMenu);
+                _opacityMenuItem.MenuItems.Add(subMenu);
             }
         }
 
@@ -213,6 +214,17 @@ namespace Ruler
             _crossLineVisible = false;
             Invalidate();
             base.OnMouseLeave(e);
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.None) return;
+            var delta = e.Delta > 0 ? 0.05 : -0.05;
+            var nextOpacity = Opacity + delta;
+            if (nextOpacity < 0.1) nextOpacity = 0.1;
+            if (nextOpacity > 1) nextOpacity = 1;
+            var menuIndex = ((int)(nextOpacity * 100) - 10) / 5;
+            _opacityMenuItem.MenuItems[menuIndex].PerformClick();
         }
 
         protected override void OnResize(EventArgs e)

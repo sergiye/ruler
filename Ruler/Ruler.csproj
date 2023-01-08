@@ -98,6 +98,7 @@
     <Reference Include="System.Drawing">
       <Name>System.Drawing</Name>
     </Reference>
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms">
       <Name>System.Windows.Forms</Name>
     </Reference>
@@ -111,6 +112,7 @@
     <Compile Include="SetSizeForm.Designer.cs">
       <DependentUpon>SetSizeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Updater.cs" />
     <Content Include="app.ico" />
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>

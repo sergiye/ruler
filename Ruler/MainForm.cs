@@ -101,6 +101,7 @@ namespace Ruler
             AddMenuItem("Set size...", Shortcut.CtrlS, SetWidthHeightHandler);
             AddMenuItem("Duplicate", Shortcut.CtrlD, DuplicateHandler);
             AddMenuItem("-");
+            AddMenuItem("Check for updates", Shortcut.None, CheckUpdatesHandler);
             AddMenuItem("About...");
             AddMenuItem("-");
             AddMenuItem("Exit");
@@ -128,6 +129,11 @@ namespace Ruler
         {
             IsLocked = !IsLocked;
             _lockedMenuItem.Checked = IsLocked;
+        }
+
+        private void CheckUpdatesHandler(object sender, EventArgs e)
+        {
+            Updater.CheckForUpdates();
         }
 
         private void DuplicateHandler(object sender, EventArgs e)
@@ -430,8 +436,8 @@ namespace Ruler
                 pos.X = pos.Y;
                 pos.Y = formHeight - tmp;
             }
-            g.DrawLine(Pens.Blue, new Point(pos.X, 0), new Point(pos.X, formHeight));
-            g.DrawLine(Pens.Blue, new Point(0, pos.Y), new Point(formWidth, pos.Y));
+            g.DrawLine(Pens.Red, new Point(pos.X, 0), new Point(pos.X, formHeight));
+            g.DrawLine(Pens.Red, new Point(0, pos.Y), new Point(formWidth, pos.Y));
             var text = string.Format("{0}/{1} px", pos.X, pos.Y);
             var textSize = g.MeasureString(text, Font);
             var textPosition = new PointF(pos.X, pos.Y - (IsVertical ? 0 : textSize.Height));

@@ -21,7 +21,6 @@ namespace Ruler
         private Rectangle _mouseDownRect;
         private readonly int _resizeBorderWidth = 5;
         private bool _crossLineVisible;
-        private Font _crossLineFont;
         private Point _mouseDownPoint;
         private ResizeRegion _resizeRegion = ResizeRegion.None;
         private readonly ContextMenu _menu = new ContextMenu();
@@ -76,8 +75,7 @@ namespace Ruler
 
             SetUpMenu(rulerInfo);
             ContextMenu = _menu;
-            Font = new Font("Verdana", 8);
-            _crossLineFont = new Font("Verdana", 7, FontStyle.Bold);
+            Font = new Font("Verdana", 8, FontStyle.Bold);
 
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
 
@@ -420,9 +418,18 @@ namespace Ruler
                 pos.X = pos.Y;
                 pos.Y = formHeight - tmp;
             }
-            g.DrawLine(Pens.Red, new Point(pos.X, 0), new Point(pos.X, formHeight));
-            g.DrawLine(Pens.Red, new Point(0, pos.Y), new Point(formWidth, pos.Y));
-            g.DrawString(string.Format("{0}/{1} px", pos.X, pos.Y), _crossLineFont, Brushes.Red, pos.X, pos.Y - (IsVertical ? 0 : 12));
+            g.DrawLine(Pens.Blue, new Point(pos.X, 0), new Point(pos.X, formHeight));
+            g.DrawLine(Pens.Blue, new Point(0, pos.Y), new Point(formWidth, pos.Y));
+            var text = string.Format("{0}/{1} px", pos.X, pos.Y);
+            var textSize = g.MeasureString(text, Font);
+            var textPosition = new PointF(pos.X, pos.Y - (IsVertical ? 0 : textSize.Height));
+            if (textPosition.Y < 0)
+                textPosition.Y = pos.Y;
+            if (IsVertical && textPosition.Y + textSize.Height > formHeight)
+              textPosition.Y = textPosition.Y - textSize.Height;
+            if (textPosition.X + textSize.Width > formWidth)
+                textPosition.X = pos.X - textSize.Width;
+            g.DrawString(text, Font, Brushes.Blue, textPosition.X, textPosition.Y);
         }
 
         private static void DrawTick(Graphics g, int xPos, int formHeight, int tickHeight)

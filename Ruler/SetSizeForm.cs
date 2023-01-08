@@ -13,6 +13,7 @@ namespace Ruler
 		{
 			InitializeComponent();
 
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;
 			originalWidth = initWidth;
 			originalHeight = initHeight;
 
